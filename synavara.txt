@@ -15,3 +15,25 @@ taastamine - восстановление
 päringukeel - язык запросов
 relatsiooni andmebaas - 
 seos - связь
+piirang-ограничение
+
+
+milleks on vaja ad? 
+-hoiustada andmed
+-päringu tegemine, et vajalikud andmed leida
+-vältida andmete dubleerimist
+andmetüübid
+1.text/sümbol (varchar(25),char(5),TEXT)
+2.Number (int,smallint,decimal(5, 2))
+3.loogika bit,boolean,bool,true/false
+4.date/time (date,time,interval)
+
+Piirangud:
+1.primary key - primaarne võti - lisab andmetabelis iga kirje unikaalsus
+2.foreign key - välisvõti - seos tesi tabeliga
+not null
+unique - ainult 1 kord tabelis
+check - valik  kasutaja saab valida
+
+SQL - Structure Query Language - Struktuuri Päringukeel
+
