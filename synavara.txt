@@ -37,3 +37,63 @@ check - valik  kasutaja saab valida
 
 SQL - Structure Query Language - Struktuuri Päringukeel
 
+
+CREATE DATABASE epoodAleksejev;
+use epoodAleksejev;
+
+CREATE TABLE Category (
+idCategory INT pRIMARY key identity(1,1),
+CategoryName varchar(25) UNIQUE
+);
+select * from product
+insert into Category (CategoryName)
+values ('jook'), ('söök')
+
+--TABELI struktuuri muutmine-->uue vegu liisamine
+ALTER TABLE Category ADD test int;
+
+CREATE TABLE product(
+idProduct INT pRIMARY key identity(1,1),
+idCategory int,
+ProductName varchar(10),
+Price decimal(5,2),
+Foreign key (idCategory) references Category(idCategory),
+)
+
+select * from product;
+select * from Category;
+
+insert into product (ProductName, idCategory, Price)
+values ('Sokolaad',2, 3)
+
+drop table product
+
+Sale (idSale, idProduct, idCustomer, Count, DateOfSale)
+
+create table Sale(
+idSale INT pRIMARY key identity(1,1),
+idProduct int,
+Foreign key (idProduct) references Product(idProduct),
+idCustomer int,
+Count_ int,
+DateOfSale date);
+
+Create table customer (
+idCustomer INT pRIMARY key identity(1,1),
+Name varchar(25),
+contact text)
+--fk lisamine
+Alter table sale add foreign key (idCustomer)
+references Customer(idCustomer)
+
+insert into Customer (Name)
+values('Vlad', )
+
+insert into Sale (idProduct, idCustomer, Count_, DateOfSale)
+values(5,5,5,'2020-11-09')
+
+select * from customer
+select * from product
+select * from category
+select * from sale
+
