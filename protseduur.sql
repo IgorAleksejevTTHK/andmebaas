@@ -55,14 +55,34 @@ drop procedure kustutaLinn;
 create procedure linnaotsing
 @taht char(1)
 AS
-BEGIN
-SELECT * FROM linn
-where LinnNimi like @taht + '%';
---& - kõik teised tahed
-END;
+	BEGIN
+	SELECT * FROM linn
+	where LinnNimi like @taht + '%';
+	--& - kõik teised tahed
+	END;
 
 --kutse
 exec linnaotsing T;
+
+--TAVELI UUENDAMINE rahvaarv kasvab 10 % võrra
+update linn set rahvaArv=rahvaArv*1.1
+select * from linn;
+update linn set rahvaArv=rahvaArv*1.1
+where LinnId=2;
+
+create procedure rahvaArvuUendus
+@linnId int,
+@koef decimal(2,1)
+as
+begin
+update linn set rahvaArv=rahvaArv*@koef
+where LinnId=@LinnId;
+select * from linn;
+end;
+
+exec rahvaArvuUendus 1, 1.2;
+select * from linn;
+drop procedure rahvaArvuUendus;
 
 ------------------------------------------------------------------------------------------------------------------
 Kasutama XAMPP / localhost
