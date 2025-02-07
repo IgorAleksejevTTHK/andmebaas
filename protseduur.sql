@@ -86,3 +86,82 @@ drop procedure rahvaArvuUendus;
 
 ------------------------------------------------------------------------------------------------------------------
 Kasutama XAMPP / localhost
+------------------------------------------------------------------------------------------------------------------
+create procedure veeruLisaKustuta
+@valik varchar(20),
+@veerunimi varchar(20),
+@tyyp varchar(20) =null
+
+
+as
+begin
+declare @sqltegevus as varchar(max)
+set @sqltegevus=case
+when @valik='add' then concat('ALTER TABLE linn add ',   @veerunimi, ' ', @tyyp)
+when @valik='drop' then concat('ALTER TABLE linn DROP COLUMN ',   @veerunimi)
+end;
+print @sqltegevus;
+begin
+EXEC (@sqltegevus);
+end
+end;
+
+--kutse
+EXEC veeruLisaKustuta @valik='add', @veerunimi='test3', @tyyp='int';
+select * from linn;
+
+EXEC veeruLisaKustuta @valik='drop', @veerunimi='test3';
+select * from linn;
+
+
+create procedure veeruLisaKustutaTabelis
+@valik varchar(20),
+@tabelinimi varchar(20),
+@veerunimi varchar(20),
+@tyyp varchar(20) =null
+
+
+as
+begin
+declare @sqltegevus as varchar(max)
+set @sqltegevus=case
+when @valik='add' then concat(' ALTER TABLE ', @tabelinimi, ' add ' ,  @veerunimi, ' ', @tyyp)
+when @valik='drop' then concat(' ALTER TABLE ', @tabelinimi, ' drop column', @veerunimi)
+end;
+print @sqltegevus;
+begin
+EXEC (@sqltegevus);
+end
+end;
+
+--kutse
+EXEC veeruLisaKustutaTabelis @valik='add', @tabelinimi='linn', @veerunimi='test3', @tyyp='int';
+select * from linn;
+
+EXEC veeruLisaKustutaTabelis @valik='drop', @tabelinimi='linn', @veerunimi='test3';
+select * from linn;
+
+--protseduur tingimusega
+create procedure rahvaHinnang
+@piir int
+
+
+as
+begin
+select linnNimi, rahvaArv, iif(rahvaarv<@piir, 'väike linn', 'suur linn') as Hinnang
+from linn;
+
+
+end;
+drop procedure rahvaHinnang;
+exec rahvaHinnang 2000;
+
+--agregaat funktsioonid: sum(), AVG(),min(),max(),count()
+
+create procedure kokkuRahvaarv
+
+as
+begin
+select sum(rahvaArv) AS 'kokku rahvaArv', avg(rahvaArv) as 'keskmine rahvaArv', count(*) as 'linnade arv'
+from linn;
+end;
