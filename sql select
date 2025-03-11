@@ -1,0 +1,4 @@
+SELECT Autorid.Autor_ID, Autorid.Eesnimi, Autorid.Perekonnanimi, Teosed.Teose_ID, Teosed.Pealkiri, 
+Teosed.Ilmumisaasta FROM Autorid
+INNER JOIN Autorlus ON Autorid.Autor_ID = Autorlus.Autor_ID
+INNER JOIN Teosed ON Autorlus.Teose_ID = Teosed.Teose_ID;
