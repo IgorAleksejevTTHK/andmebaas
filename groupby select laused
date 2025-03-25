@@ -1,0 +1,16 @@
+select * from Country
+
+--Страны, в которых более 10 городов – миллионеров
+select CountryCode,count(*) from City 
+where (Population>1000000) 
+group by CountryCode having count(*)>10
+
+--Площади континентов (площадь континента считать как суммарную площадь стран континента).
+select Continent, SUM(SurfaceArea) from Country
+group by Continent;
+
+--Самый большой по площади континент (площадь континента считать как суммарную площадь стран континента) (Asia)
+
+select top 1 Continent, SUM(SurfaceArea) as totalarea from Country
+group by Continent
+order by totalarea DESC
