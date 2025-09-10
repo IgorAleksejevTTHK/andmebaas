@@ -1,0 +1,113 @@
+create database raamatukogu
+use raamatukogu
+
+CREATE TABLE raamatud(
+raamatuID int IDENTITY(1,1) PRIMARY KEY,
+aasta int,
+lehekuljed int,
+autorID int,
+FOREIGN KEY (autorID) REFERENCES autor(autorID)
+)
+
+create table autor(
+autorID int IDENTITY(1,1) primary key,
+nimi varchar (50)
+)
+
+create table logi(
+logiID int identity(1,1) primary key,
+kuupaev datetime,
+kasutaja varchar(100),
+andmed TEXT
+)
+
+
+DROP table logi
+
+
+
+---insert
+CREATE TRIGGER raamatLisamine
+ON raamatud
+AFTER INSERT
+AS
+BEGIN
+INSERT INTO logi (kuupaev, kasutaja, andmed)
+SELECT 
+GETDATE(),
+SYSTEM_USER,
+CONCAT('Lisatud raamat: ', inserted.raamatuID, ', aasta: ', inserted.aasta, 
+', lehekuljed: ', inserted.lehekuljed, ', autor: ', a.nimi)
+FROM inserted
+INNER JOIN autor a ON inserted.autorID = a.autorID;
+END
+
+---kontroll
+INSERT INTO autor (nimi) VALUES ('J.K. Rowling');
+INSERT INTO raamatud (aasta, lehekuljed, autorID) VALUES (1997, 320, 1);
+SELECT * FROM logi;
+SELECT * FROM raamatud 
+SELECT * FROM autor
+
+
+
+--Uuendamine
+CREATE TRIGGER raamatUuendamine
+ON raamatud
+AFTER UPDATE
+AS
+BEGIN
+INSERT INTO logi (kuupaev, kasutaja, andmed)
+SELECT 
+GETDATE(),
+SYSTEM_USER,
+CONCAT('Uuendatud raamat: ', inserted.raamatuID, 
+', vanad andmed: ', deleted.aasta, ', ', deleted.lehekuljed, ', ', a1.nimi,
+', uued andmed: ', inserted.aasta, ', ', inserted.lehekuljed, ', ', a2.nimi)
+FROM inserted
+INNER JOIN deleted ON inserted.raamatuID = deleted.raamatuID
+INNER JOIN autor a1 ON deleted.autorID = a1.autorID
+INNER JOIN autor a2 ON inserted.autorID = a2.autorID;
+END
+
+--kontroll
+UPDATE raamatud SET aasta = 1998, lehekuljed = 350 WHERE raamatuID = 1;
+SELECT * FROM logi
+SELECT * FROM raamatud 
+SELECT * FROM autor
+
+
+---delete
+CREATE TRIGGER raamatKustutamine
+ON raamatud
+AFTER DELETE
+AS
+BEGIN
+INSERT INTO logi (kuupaev, kasutaja, andmed)
+SELECT 
+GETDATE(),
+SYSTEM_USER,
+CONCAT('Kustutatud raamat: ', deleted.raamatuID, ', aasta: ', deleted.aasta, 
+', lehekuljed: ', deleted.lehekuljed, ', autor: ', a.nimi)
+FROM deleted
+INNER JOIN autor a ON deleted.autorID = a.autorID;
+END
+--kontroll
+
+DELETE FROM raamatud WHERE raamatuID = 1;
+SELECT * FROM logi
+SELECT * FROM raamatud 
+SELECT * FROM autor
+
+INSERT INTO autor (nimi) VALUES 
+('J.K. Rowling'),
+('Stephen King'), 
+('Pjotr Nazad'),
+('Agatha Nurberg');
+
+
+INSERT INTO raamatud (aasta, lehekuljed, autorID) VALUES 
+(1997, 320, 1),
+(1986, 1138, 2),
+(1949, 328, 3),
+(1934, 256, 4);
