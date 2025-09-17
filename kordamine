@@ -178,6 +178,8 @@ grant select on toode to vaataja
 
 grant select on toodekategooria to vaataja
 
+deny select on toodekategooria to kataloogihaldur
+
 select
 concat(table_schema, '.',table_name) as scope,
 grantee,
