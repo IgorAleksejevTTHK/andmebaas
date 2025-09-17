@@ -1,0 +1,169 @@
+create database aleksejevkordamine
+use aleksejevkordamine
+create table toodekategooria(
+toodekategooriaId int not null primary key identity (1,1),
+toodekategooria varchar(100) unique,
+kirjeldus text);
+ 
+create table toode(
+toodeId int not null primary key identity (1,1),
+toodenimetus varchar(100) unique,
+hind decimal(5,2),
+toodekategooriaId int,
+foreign key (toodekategooriaId) references toodekategooria(toodekategooriaId)
+);
+
+insert into toode(toodenimetus, hind, toodekategooriaId)
+values('pizza',5,1);
+
+insert into toodekategooria(toodekategooria,kirjeldus)
+values('söök','saab süüa');
+
+--2. Vaated (VIEW)
+--1.Loo vaade, mis kuvab ainult toodete nime ja hinna.
+
+select toodenimetus,hind from toode
+--vaade, mis kuvab ainult toodete nime ja hinna
+create view nimiJaHind as
+select toodenimetus,hind from toode
+--kuvame view
+select * from nimiJaHind 
+--2.Loo vaade, mis näitab kõiki tooteid koos kategooria nimega.
+create view tooded_kategooria
+as 
+select t.toodenimetus, t.hind, tk.toodekategooria from toode t
+inner join toodekategooria tk on tk.toodekategooriaId = t.toodekategooriaId
+
+select * from tooded_kategooria
+
+
+
+--tabeli struktuuri muutmine, uue veergu lisamine
+alter table toode
+add aktiivne bit
+
+update toode set aktiivne = 1
+
+update toode set aktiivne = 0
+where toodeId= 2
+
+--3.Loo vaade, mis kuvab ainult aktiivseid (nt saadaval olevaid) tooteid.
+create view saadav_toode
+as
+select * from toode
+where aktiivne = 1
+
+select * from saadav_toode
+
+drop view saadav_toode
+
+--4.Loo vaade, mis koondab info: kategooria nimi, toodete arv, minimaalne ja maksimaalne hind.
+create view kategooriadInfo as
+select toodekategooria, count(*) 
+as 'toodete arv', cast(min(t.hind) as decimal (5,1)) as 'min hind', 
+cast(max(t.hind) as decimal (5,1)) as 'max hind' 
+from toodekategooria tk
+inner join toode t on t.toodekategooriaId=tk.toodekategooriaId 
+group by tk.toodekategooria;
+
+select * from kategooriadInfo
+
+--5.Loo vaade, mis arvutab toode käibemaksu (24%) ja iga toode hind käibemaksuga.
+create view kaibemaksHind as
+select toodenimetus,
+hind,
+cast((hind * 0.24) as decimal(5,2)) as 'Kaibemaks',
+cast((hind *1.24) as decimal(5,2)) as 'Hind_kaibemaksuga'
+from toode
+
+select * from kaibemaksHind
+
+
+
+--protseduurid
+--1.Loo protseduur, mis lisab uue toote (sisendparameetrid: tootenimi, hind, kategooriaID).
+
+create procedure toodeLisamine
+@toodeNimetus varchar(200),
+@hind int,
+@toodekategooriaId int,
+@aktiivne bit
+as
+begin
+insert into toode(toodenimetus, hind, toodekategooriaId, aktiivne)
+values(@toodenimetus,@hind,@toodekategooriaId, @aktiivne)
+select * from toode
+end
+
+exec toodeLisamine'Nikita Z',1,1,1
+
+drop procedure toodeLisamine
+
+--2.Loo protseduur, mis uuendab toote hinda vastavalt tooteID-le.
+
+create procedure update_hind
+@toodeId int,
+@hind decimal(5,2)
+as
+begin
+select * from toode;
+update toode set hind=@hind
+where toodeId=@toodeId;
+select * from toode
+end
+
+exec update_hind 3,3.5
+
+--3.Loo protseduur, mis kustutab toote ID järgi.
+
+create procedure kustutaToode
+@toodeId int
+as
+begin
+select * from toode
+delete toode where toodeId=@toodeId
+select* from toode
+end
+
+exec kustutaToode 3
+
+--4.Loo protseduur, mis tagastab kõik tooted valitud kategooriaID järgi.
+create procedure LeiaToodekategooriaIDjargi
+@kategooria varchar(30)
+as
+begin
+select toodekategooria, toodenimetus,hind
+from toodekategooria tk
+inner join toode t on t.toodekategooriaId=tk.toodekategooriaId 
+where tk.toodekategooria = @kategooria
+end
+
+exec LeiaToodekategooriaIDjargi söök
+
+--5.Loo protseduur, mis tõstab kõigi toodete hindu kindlas kategoorias kindla protsendi võrra.
+create procedure protsenti
+@kategooriaId int
+as
+begin
+select * from toode;
+update toode
+set hind = hind * (1.15)
+where toodekategooriaId = @kategooriaId
+select * from toode;
+end
+
+exec protsenti 1 
+select * from toodekategooria
+
+drop procedure protsenti
+
+--6.Loo protseduur, mis kuvab kõige kallima toote kogu andmebaasis.
+create procedure KallimHind
+as
+begin
+select top 1 *
+from toode
+order by hind desc
+end
+
+exec KallimHind
