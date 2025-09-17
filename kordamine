@@ -167,3 +167,35 @@ order by hind desc
 end
 
 exec KallimHind
+
+
+
+grant insert, update, delete on toode to tootehaldur
+
+grant insert, update, select on toodekategooria to kataloogihaldur
+
+grant select on toode to vaataja
+
+grant select on toodekategooria to vaataja
+
+select
+concat(table_schema, '.',table_name) as scope,
+grantee,
+privilege_type
+from INFORMATION_SCHEMA.TABLE_PRIVILEGES
+
+---loo transaction, mis kustutad kõik nimed tabelis.
+begin transaction
+save transaction sp1;
+select * from toode
+DELETE FROM toode WHERE toodeId = 7;
+
+DELETE FROM toode WHERE toodeId = 8;
+ 
+DELETE FROM toode WHERE toodeId = 9;
+ 
+DELETE FROM toode WHERE toodeId = 10;
+select * from toode
+
+ROLLBACK transaction SP1;
+select * from toode
